@@ -1,9 +1,9 @@
-const mongo = require('mongodb');
+const mongo = require('mongoose');
 
 //Definir el esquema de tareas
 
 const tareasSchema = new mongo.Schema({
-    id:{ type: Number, require:true},
+    /* id:{ type: Number, require:true}, */
     titulo:{type:String, require:true},
     descripcion: {type:String, require:false},
     completada: {type: Boolean, default: false},
@@ -13,19 +13,20 @@ const tareasSchema = new mongo.Schema({
 
 //Crear el modelo y exportarlo
 
-const Tareas = mongo.model('tareas', tareasSchema)
+const Tareas = mongo.model('tareas', tareasSchema);
 
 //Conexion a MongoDB
 const conectarDB =  async () => {
     try{
-        const MONGODB_CON = process.env.MONGODB_CONEXION.replace('<db_password>', process.env.DB_PASS || '');
+        const MONGODB_CON = process.env.MONGODB_CONEXION;
         
-    await mongo.connect(MONGODB_CON, {
-      dbName: process.env.DB_NAME || 'NombreDB'
+    await mongo.connect(MONGODB_URI, {
+      dbName: process.env.DB_NAME 
     });
 
     console.log('Conectado a MongoDB Atlas');
-  } catch (error) {
+  } 
+  catch (error) {
     console.error('Error conectando a MongoDB: ', error.message);
   }
 };
@@ -39,7 +40,7 @@ const obtenerTodasLasTareas = async () => {
     catch(error){
         console.error('Error obtenido tareas: ', error.message);
     }   
- };
+};
 
     //funcion para obtener tareas por ID
     const obtenerTareaPorId = async(id) => {
@@ -47,7 +48,7 @@ const obtenerTodasLasTareas = async () => {
             return await Tareas.findById(id);
         }
         catch (error){
-            console.error('Error obtenido tareas por id: ', error.message);
+            console.error('Error obtenido tareas por id: ',  error.message);
         }
     };
 
@@ -59,32 +60,35 @@ const obtenerTodasLasTareas = async () => {
             return await nuevaTarea.save();
         }
         catch(error){
-           console.error('Error crearndpo tareas: ', error.message);
+           console.error('Error crearndpo tareas: ',  error.message);
         } 
 };
     
 
 //Funcion para actualizar tarea
-const actualizarTarea = async (id,nuevosDatos) => {
+const actualizarTarea = async (id, nuevosDatos) => {
     try{
         return await Tareas.findByIdAndUpdate(
             id,
             {
-                ...nuevosDatos, fechaActualizacion: new Date()
+                ...nuevosDatos, 
+                fechaActualizacion: new Date()
             },
+            { new: true} //Devuelve el documento actualizado
         );
     }
-    catch{
+    catch (error){
         console.error('Error actualizando tareas por id: ', error.message);
+        throw error;
     }
 };
 
 //Función para eliminar tareas
 const eliminarTarea = async (id) => {
     try{
-        return await Tareas.findByIdAndUpdate(id);
+        return await Tareas.findByIdAndDelete(id);
     }
-    catch{
+    catch (error){
         console.error('Error actualizando tareas por id: ', error.message); 
     }
 };
@@ -99,5 +103,4 @@ module.exports = {
   crearTarea,
   actualizarTarea,
   eliminarTarea
-
 };

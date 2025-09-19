@@ -164,19 +164,18 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(newTask)
+            body: JSON.stringify(updatedTask)
         })
             .then(response => {
                 if (!response.ok) {
                     return response.json().then(err => {
-                        throw new Error(err.error);
-                    });
+                        throw new Error(err.error)  });
                 }
                 return response.json();
             })
             .then(data => {
                 alert('Tarea creada exitosamente');
-                taskForm.reset();
+                modal.style.display = 'none';
                 loadTasks();
             })
             .catch(error => {

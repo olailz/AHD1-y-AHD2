@@ -1,3 +1,7 @@
+const mongoose = require('mongoose')
+
+
+//Middleware para validar ObJectId de MongoDB
 const validarTareaId = (req, res, next) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -7,13 +11,19 @@ const validarTareaId = (req, res, next) => {
     next();
 };
 
+//Middleware para validar datos de tarea
 const validarDatosTarea = (req, res, next) => {
     const {titulo} = req.body;
     
-    if(req.mothod ===  'POST' || req.method === 'PUT'){
+    if(req.method ===  'POST' || req.method === 'PUT'){
         if(!titulo || titulo.trim() === ''){
             return res.status(400).json({ error: 'El título de la tarea es obligatorio y no puede estar vacío.' });
+        }
 
+        //limpiar datos 
+        if (titulo) req.body.titulo = titulo.trim();
+        if (req.body.descripcion){
+            req.body.descripcion = req.body.descripcion.trim();
         }
     }
     next();

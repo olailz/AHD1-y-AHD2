@@ -5,13 +5,13 @@ const{
     crearTarea,
     actualizarTarea,
     eliminarTarea,
-} = require('../data/tareasData');
+} = require('../data/tareasDataMongoDB');
 
 //Controlador para obtener todas las tareas
-const getTareas = (req, res) => {
+const getTareas = async (req, res) => {
     try {
         const {completada} = req.query;
-        let tareas = obtenerTodasLasTareas();
+        let tareas = await obtenerTodasLasTareas();
 
         if(completada !== undefined){
             const estaCompletada = completada === 'true';
@@ -27,9 +27,9 @@ const getTareas = (req, res) => {
 };
 
 //Controlador para obtener una tarea por su ID  
-const getTareaById = (req, res) => {
+const getTareaById = async (req, res) => {
     try {
-        const tarea = obtenerTareaPorId(req.id);
+        const tarea = await obtenerTareaPorId(req.params.id);
 
         //Si no existe la tarea
         if(!tarea){
@@ -45,11 +45,11 @@ const getTareaById = (req, res) => {
 };
 
 //Controlador para crear una nueva tarea
-const createTarea = (req, res) => {
+const createTarea = async (req, res) => {
     try {
         const  {titulo, descripcion, completada} = req.body;
 
-        const nuevaTarea = crearTarea({
+        const nuevaTarea = await crearTarea({
             titulo: titulo.trim(),
             descripcion: descripcion ? descripcion.trim() : '',
             completada: completada || false
@@ -68,15 +68,19 @@ const createTarea = (req, res) => {
 
 //Actualizar tarea completa (PUT)
 
-const updateTarea = (req, res) => {
+const updateTarea = async (req, res) => {
     try {
         const {titulo, descripcion, completada} = req.body;
 
-        const tareaActualizada = actualizarTarea(req.tareaId, {
+        const tareaActualizada = await actualizarTarea(req.tareaId, {
             titulo: titulo.trim(),
             descripcion: descripcion ? descripcion.trim() : '',
             completada: completada !== undefined ? completada : false,
         });
+
+        if (!tareaActualizada){
+            return res.status(404).json({error: 'Tarea no econtrada' })
+        }
 
         res.json({
             message: 'Tarea actualizada exitosamente.',
@@ -85,6 +89,24 @@ const updateTarea = (req, res) => {
     }
     catch (error) {
         res.status(500).json({ error: 'Error al actualizar la tarea.' });
+    }
+};
+
+//Eliminar tarea 
+const deleteTarea = async (req, res) => {
+    try{
+        const tareaEliminada = await eliminarTarea(req.id);
+
+        if (!tareaEliminada){
+            return res.status(404).json({ error: 'Tarea no encontrada'});
+        }
+        res.json({
+            message: 'Tarea eliminada exitosamente',
+            tarea: tareaEliminada
+        });
+    }
+    catch (error){
+        res.status(500).json({ error: 'Error al eliminar la tarea'});
     }
 };
 

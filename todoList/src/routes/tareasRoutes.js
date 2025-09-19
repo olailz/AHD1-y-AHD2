@@ -23,7 +23,7 @@ router.get('/', getTareas);
 router.get('/:id', validarTareaId, getTareaById);
 
 //Ruta POST /api/tareas
-router.get('/', validarDatosTarea, createTarea);
+router.post('/', validarDatosTarea, createTarea);
 
 //ruta PUT /api/tareas/id
 router.put('/:id', validarTareaId, updateTarea);
