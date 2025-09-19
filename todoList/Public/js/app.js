@@ -99,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const status = document.createElement('span');
         status.className = `task-status ${task.completada ? 'status-completed' : 'status-pending'}`;
         status.textContent = task.completada ? 'Completada' : 'Pendiente';
-        title.appendChild(status);
 
         const description = document.createElement('div');
         description.className = 'task-description';
@@ -107,9 +106,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const dates = document.createElement('div');
         dates.className = 'task-dates';
-        dates.textContent = `Creada: ${formatDate(task.fechaCreacion)} | Actualizada: ${formatDate(task.fechaActualizacion)}`;
+        dates.textContent =
+            `Creada: ${task.fechaCreacion ? formatDate(task.fechaCreacion) : 'N/A'} | ` +
+            `Actualizada: ${task.fechaActualizacion ? formatDate(task.fechaActualizacion) : 'N/A'}`;
 
         taskInfo.appendChild(title);
+        taskInfo.appendChild(status);
         taskInfo.appendChild(description);
         taskInfo.appendChild(dates);
 
@@ -153,6 +155,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const descripcion = document.getElementById('descripcion').value.trim();
         const completada = document.getElementById('completada').checked;
 
+        if (!titulo) {
+            alert("El título es obligatorio");
+            return;
+        }
+
         const newTask = {
             titulo,
             descripcion,
@@ -164,18 +171,18 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(updatedTask)
+            body: JSON.stringify(newTask) // ✅ corregido
         })
             .then(response => {
                 if (!response.ok) {
                     return response.json().then(err => {
-                        throw new Error(err.error)  });
+                        throw new Error(err.error)
+                    });
                 }
                 return response.json();
             })
             .then(data => {
                 alert('Tarea creada exitosamente');
-                modal.style.display = 'none';
                 loadTasks();
             })
             .catch(error => {
@@ -202,6 +209,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const titulo = document.getElementById('editTitulo').value.trim();
         const descripcion = document.getElementById('editDescripcion').value.trim();
         const completada = document.getElementById('editCompletada').checked;
+
+        if (!titulo) {
+            alert("El título es obligatorio");
+            return;
+        }
 
         const updatedTask = {
             titulo,
